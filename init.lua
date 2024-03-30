@@ -289,18 +289,22 @@ require('lazy').setup({
       }
     end,
   },
-  
+
   -- File (tree) explorer
   {
-    "nvim-neo-tree/neo-tree.nvim",
-	event = 'VimEnter',
-    branch = "v3.x",
+    'nvim-neo-tree/neo-tree.nvim',
+    event = 'VimEnter',
+    branch = 'v3.x',
     dependencies = {
-      "nvim-lua/plenary.nvim",
-	  { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
-      "MunifTanjim/nui.nvim",
-      "3rd/image.nvim", -- Optional image support in preview window: See `# Preview Mode` for more information
-    }
+      'nvim-lua/plenary.nvim',
+      { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+      'MunifTanjim/nui.nvim',
+      '3rd/image.nvim', -- Optional image support in preview window: See `# Preview Mode` for more information
+    },
+    config = function()
+      vim.keymap.set('n', '<C-n>', ':Neotree toggle<CR>', { desc = 'Toggle tree folder' })
+      buffers = { follow_current_file = { enabled = true } }
+    end,
   },
 
   -- NOTE: Plugins can specify dependencies.
@@ -314,19 +318,30 @@ require('lazy').setup({
     event = 'VimEnter',
     branch = '0.1.x',
     dependencies = {
+      {
+        'BurntSushi/ripgrep',
+        -- build = 'cargo build --release --target target.x86_64-pc-windows-msvc',
+        cmd = 'winget install BurntSushi.ripgrep.MSVC',
+        cond = function()
+          return vim.fn.executable 'winget' == 1
+        end,
+      },
       'nvim-lua/plenary.nvim',
       { -- If encountering errors, see telescope-fzf-native README for installation instructions
         'nvim-telescope/telescope-fzf-native.nvim',
 
         -- `build` is used to run some command when the plugin is installed/updated.
         -- This is only run then, not every time Neovim starts up.
+        -- UNIX
         -- build = 'make',
-		-- WINDOWS
-		build = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build',
-
+        -- WINDOWS
+        build = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build',
         -- `cond` is a condition used to determine whether this plugin should be
         -- installed and loaded.
         cond = function()
+          -- UNIX
+          -- return vim.fn.executable 'make' == 1
+          -- WINDOWS
           return vim.fn.executable 'cmake' == 1
         end,
       },
@@ -377,6 +392,8 @@ require('lazy').setup({
       -- Enable Telescope extensions if they are installed
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
+      pcall(require('telescope').load_extension, 'ripgrep')
+      pcall(require('telescope').load_extension, 'rg')
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
@@ -385,6 +402,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
+      -- vim.keymap.set('n', '<leader>sa', builtin.live_grep_args.live_grep_args, { desc = '[S]earch in [A]ll files', noremap = true })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
@@ -754,7 +772,7 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      -- vim.cmd.colorscheme 'tokyonight-night'
 
       -- You can configure highlights by doing something like:
       vim.cmd.hi 'Comment gui=none'
